@@ -112,7 +112,7 @@ def get_presenters(year):
     def filterPresenters(award):
         filtered = []
         for tweet in df:
-            if award in tweet and ('presenting' in tweet or 'present' in tweet or 'announce' in tweet or 'announcing' in tweet):
+            if award in tweet and ('presented' in tweet or 'presenting' in tweet or 'present' in tweet or 'announce' in tweet or 'announcing' in tweet):
                 filtered.append(tweet)
         return filtered
 
