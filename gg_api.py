@@ -21,6 +21,10 @@ def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
+    awards = []
+    df = pd.reas_csv("datasets/dataset1.csv")
+    df = df["text"]
+    
     return awards
 
 def get_nominees(year):
