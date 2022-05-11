@@ -9,6 +9,43 @@ from preprocess_csv import preprocess
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
+
+#helper funcs ----------------
+def sortCandidates(candidates):
+    c = nltk.FreqDist([item for sublist in candidates for item in sublist])
+    return c.max(1)
+    # top_3 = = c.keys()[:3] - for ranked list
+
+            
+def addRight(tweet, index):
+    arr = []
+    tArr = tokenize_word(tweet) #NLTK func
+    if index == tArr.size(): return
+
+    s = tArr[index+1] #range could be oob
+    arr.append(s)
+
+    for i in range(index+2, tArr.size()): 
+        s = s + " " + tArr[i]
+        arr.append(s)
+    return arr
+
+
+def addLeft(tweet, index):
+    arr = []
+    tArr = tokenize_word(tweet) #NLTK func
+    if index == 0: return
+
+    s = tArr[index-1]
+    arr.append(s)
+
+    for i in range(index-2, 0, -1): #check if range will get skipped if oob
+        s = tArr[i] + " " + s
+        arr.append(s)
+    return arr
+# ----------------------------
+
+
 def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
@@ -28,7 +65,22 @@ def get_nominees(year):
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns.'''
     # Your code here
-    nominees = ()
+
+
+    def filterNoms(award):
+        filtered = []
+        for tweet in df:
+            if award in tweet and ('nominated' in tweet or 'nominate' in tweet or 'loses' in tweet or 'lost' in tweet):
+                filtered.append(tweet)
+        return filtered
+
+    nominees = {}
+    for award in OFFICIAL_AWARDS_1315:
+        candidates = []
+        for tweet in filterNoms(award):
+            c = addRight(tweet)
+            candidates.append(c)
+        nominees[award] = sortCandidates(candidates) #needs to return 5-6? dynamically add # based on number of freq/avg?
     return nominees
 
 def get_winner(year):
@@ -36,7 +88,21 @@ def get_winner(year):
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
     # Your code here
-    winners = ()
+<
+    def filterWinners(award):
+        filtered = []
+        for tweet in df:
+            if award in tweet and ('wins' in tweet or 'won' in tweet or 'goes to' in tweet or 'winner' in tweet):
+                filtered.append(tweet)
+        return filtered
+
+    winners = {}
+    for award in OFFICIAL_AWARDS_1315:
+        candidates = []
+        for tweet in filterWinners(award):
+            c = addRight(tweet)
+            candidates.append(c)
+        winners[award] = sortCandidates(candidates)
     return winners
 
 def get_presenters(year):
@@ -44,7 +110,20 @@ def get_presenters(year):
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns.'''
     # Your code here
-    presenters = ()
+    def filterPresenters(award):
+        filtered = []
+        for tweet in df:
+            if award in tweet and ('presenting' in tweet or 'present' in tweet or 'announce' in tweet or 'announcing' in tweet):
+                filtered.append(tweet)
+        return filtered
+
+    presenters = {}
+    for award in OFFICIAL_AWARDS_1315:
+        candidates = []
+        for tweet in filterPresenters(award):
+            c = addRight(tweet)
+            candidates.append(c)
+        presenters[award] = sortCandidates(candidates) #only returns 1 rn, will need multiple (set 2-3?)
     return presenters
 
 def pre_ceremony():
@@ -67,6 +146,7 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns.'''
     # Your Code here
+
     pre_ceremony()
     return
 
