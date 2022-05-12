@@ -5,6 +5,7 @@ import pandas as pd
 import import_ipynb
 import preprocess_csv
 from preprocess_csv import preprocess
+from hosts import get_text_with_hosts, stem_ref_word, get_candidates, get_all_choices
 
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
@@ -13,7 +14,13 @@ def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
-    hosts = ()
+    df = pd.read_csv("datasets/dataset2.csv")
+
+    text_with_hosts = get_text_with_hosts(df)
+    sents_stemmed = stem_ref_word(text_with_hosts)
+    all_bigrams = get_candidates(sents_stemmed)
+    hosts = get_all_choices(all_bigrams)
+
     return hosts
 
 def get_awards(year):
@@ -54,8 +61,8 @@ def pre_ceremony():
     Do NOT change the name of this function or what it returns.'''
     
     preprocess()
-    df = pd.read_csv("datasets/dataset2.csv")
-    print(df.head())
+    
+    
     
    
 
@@ -68,6 +75,11 @@ def main():
     what it returns.'''
     # Your Code here
     pre_ceremony()
+
+    #hardcoding just for now 
+    year = None
+    hosts = get_hosts(year)
+    
     return
 
 if __name__ == '__main__':
