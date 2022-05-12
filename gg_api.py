@@ -95,7 +95,7 @@ def get_winner(year):
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
     # Your code here
-<
+
     def filterWinners(award):
         filtered = []
         for tweet in df:
@@ -159,7 +159,7 @@ def main():
     #hardcoding just for now 
     year = None
     hosts = get_hosts(year)
-    
+
     return
 
 if __name__ == '__main__':
