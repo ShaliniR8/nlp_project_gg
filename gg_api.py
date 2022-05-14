@@ -6,11 +6,16 @@ import import_ipynb
 import preprocess_csv
 from preprocess_csv import preprocess
 from hosts import get_text_with_hosts, stem_ref_word, get_candidates, get_all_choices
-from award_t import awa
+from nltk.tokenize import word_tokenize
+#from nltk.corpus import stopwords as sw
+import nltk
+nltk.download('punkt')
+
 
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
+stopwords = ["to", "and", "I", "that", "this", "for", "the", "an", "at", "in", "a"]
 
 #helper funcs ----------------
 def sortCandidates(candidates):
@@ -21,13 +26,14 @@ def sortCandidates(candidates):
             
 def addRight(tweet, index):
     arr = []
-    tArr = tokenize_word(tweet) #NLTK func
-    if index == tArr.size(): return
+    tArr = word_tokenize(tweet) #NLTK func
+    if index == len(tArr) - 1: return
 
     s = tArr[index+1] #range could be oob
     arr.append(s)
 
-    for i in range(index+2, tArr.size()): 
+    for i in range(index+2, len(tArr)):
+        if tArr[i] in stopwords:  continue
         s = s + " " + tArr[i]
         arr.append(s)
     return arr
@@ -35,13 +41,14 @@ def addRight(tweet, index):
 
 def addLeft(tweet, index):
     arr = []
-    tArr = tokenize_word(tweet) #NLTK func
+    tArr = word_tokenize(tweet) #NLTK func
     if index == 0: return
 
     s = tArr[index-1]
     arr.append(s)
 
     for i in range(index-2, 0, -1): #check if range will get skipped if oob
+        if tArr[i] in stopwords:  continue
         s = tArr[i] + " " + s
         arr.append(s)
     return arr
@@ -65,14 +72,72 @@ def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
+    df = pd.read_csv("datasets/dataset2.csv")
     awards = []
-    '''size = 0
+    size = 0
     if year == 2013 or year == 2015:
-        size = OFFICIAL_AWARDS_1315
+        size = len(OFFICIAL_AWARDS_1315)
     else:
-        size = OFFICIAL_AWARDS_1819'''
+        size = len(OFFICIAL_AWARDS_1819)
     
+    candidates = []
+    for tweet in df["text"]:
+        temp = word_tokenize(tweet)
+        if "best" in temp:
+            index = 0
+            while temp[index] != "best":
+                index += 1
+            if (index == len(temp) - 1):  continue
+            if index == 0:  continue
+            c = addRight(tweet, index - 1)
+            candidates.append(c)
+        if "nominated" in temp and "for" in temp:
+            index = 0
+            find_nominate = False
+            while temp[index] != "for" and (not find_nominate):
+                index += 1
+                if temp[index] == "nominated":   find_nominate = True
+        
+            if index == (len(temp) - 1):  continue
+            c = addRight(tweet, index)
+            candidates.append(c)
+        if "win" in temp or "wins" in temp or "won" in temp:
+            index = 0
+            while temp[index] != "win" and temp[index] != "wins" and temp[index] != "won":
+                index += 1
+            if index == (len(temp) - 1):  continue
+            c = addRight(tweet, index)
+            candidates.append(c)
+        if "lost" in temp or "lose" in temp or "loses" in temp:
+            index = 0
+            while temp[index] != "lost" and temp[index] != "lose" and temp[index] != "loses":
+                index += 1
+            if index == (len(temp) - 1):  continue
+            c = addRight(tweet, index)
+            candidates.append(c)
+        if "goes" in temp or "go" in temp:
+            index = 0
+            while temp[index] != "goes" and temp[index] != "go":
+                index += 1
+            if index == (0):  continue
+            c = addLeft(tweet, index)
+            candidates.append(c)
+    
+    intoOneLis = []
+    for sub in candidates:
+        intoOneLis = intoOneLis + sub
+    c = nltk.FreqDist(intoOneLis)
+    TopList = c.most_common(200)
+    
+    counter = 0
+    for i in range(200):
+        if len(word_tokenize(TopList[i][0])) > 2:  
+            counter += 1
+            awards.append(TopList[i][0])
+            if counter > size:
+                break
     return awards
+    
 
 def get_nominees(year):
     '''Nominees is a dictionary with the hard coded award
@@ -163,11 +228,11 @@ def main():
 
     pre_ceremony()
     df = pd.read_csv("datasets/dataset2.csv")
-    nom = awa(df)
-    print(nom[:26])
+    awards = get_awards(2013)
+    print(awards)
     #hardcoding just for now 
-    year = None
-    hosts = get_hosts(year)
+    #year = None
+    #hosts = get_hosts(year)
 
     return
 
