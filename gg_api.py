@@ -10,10 +10,13 @@ from nltk import word_tokenize, pos_tag
 import preprocess_csv
 from preprocess_csv import preprocess
 from hosts import get_text_with_hosts, stem_ref_word, get_candidates, get_all_choices
+import imdb
 
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 stopwords = list(sw.words("english"))[:100]
+
+movieDB = imdb.IMDb()
 
 #helper funcs ----------------
 def sortCandidates(candidates, number, award):
@@ -22,16 +25,31 @@ def sortCandidates(candidates, number, award):
         arrCombo = arrCombo + sublist
 
     c = nltk.FreqDist(arrCombo)
-    topList = c.most_common(20)
+    topList = c.most_common(40)
 
-    #print("RANKING === ", topList)
-
-    topList2 = [word[0] for word in topList]
+    topList2 = [word[0] for word in topList] #removes # frequency from list, just names
     print("test tops", topList2)
     print(' -------------- ')
-    #tags = nltk.pos_tag(topList2) only look for names for categories with actor/actress/director/etc
-    if number == 1: return c.max()
-    else: return topList2[:number]
+
+    #tags = nltk.pos_tag(topList2) <<POS tagging
+    #print("TAGS!", tags) 
+
+    # awardArr = award.split()
+    for candidate in topList2:
+        r = candidate.title()
+        if movieDB.name2imdbID(r): 
+            print("guess = ", r)
+            return r
+    
+    if number == 1: 
+        r = c.max().title()
+        print("no IMDB match, guess = ", r)
+        return r
+    else: 
+        r = [c.title() for c in topList2[:number]]
+        print("no IMDB match, guess = ", r)
+        return r
+
 
             
 def addRight(tweet, index):
