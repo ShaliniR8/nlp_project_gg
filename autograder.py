@@ -225,6 +225,7 @@ if __name__ == '__main__':
     years = ['2013', '2015']
     grading = ["hosts", "awards", "nominees", "presenters", "winner"]
 
+
     if len(sys.argv) > 1:
         if '2013' in sys.argv:
             years = ['2013']
@@ -234,5 +235,6 @@ if __name__ == '__main__':
         newg = [g for g in grading if g in sys.argv]
         if len(newg) > 0:
             grading = newg
-
-    main(years, grading)
+    test = ['2013']
+    test2 = ['awards']
+    main(test, test2)
