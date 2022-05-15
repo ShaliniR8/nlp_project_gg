@@ -8,14 +8,29 @@ from preprocess_csv import preprocess
 import nltk
 import nltk.data
 from nltk.corpus import stopwords as sw
+import imdb
+
+import ssl
+
+
+##this made nltk.pos_tag and word_tokenize work for me
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+nltk.download('averaged_perceptron_tagger')
+nltk.download('punkt')
 
 
 
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
+movieDB = imdb.IMDb()
+
 aw = []
-#stopwords = ["to", "and", "I", "that", "this", "for", "the", "an", "at"]
 stopwords = list(sw.words("english"))[:100]
 
 #helper funcs ----------------
@@ -25,16 +40,33 @@ def sortCandidates(candidates, number, award):
         arrCombo = arrCombo + sublist
 
     c = nltk.FreqDist(arrCombo)
-    topList = c.most_common(20)
+    topList = c.most_common(40)
 
-    #print("RANKING === ", topList)
-
-    topList2 = [word[0] for word in topList]
+    topList2 = [word[0] for word in topList] #removes # frequency from list, just names
     print("test tops", topList2)
     print(' -------------- ')
-    #tags = nltk.pos_tag(topList2) only look for names for categories with actor/actress/director/etc
-    if number == 1: return c.max()
-    else: return topList2[:number]
+
+    #tags = nltk.pos_tag(topList2) <<POS tagging
+    #print("TAGS!", tags) 
+
+    awardArr = award.split()
+    if "actor" in award or "actress" in award or "director" in award:
+        for candidate in topList2:
+            r = candidate.title()
+            if movieDB.name2imdbID(r): 
+                print("guess = ", r)
+                return r
+        
+
+    
+    if number == 1: 
+        r = c.max().title()
+        print("no IMDB match, guess = ", r)
+        return r
+    else: 
+        r = [c.title() for c in topList2[:number]]
+        print("no IMDB match, guess = ", r)
+        return r
 
     # top_3 = c.keys()[:3] - for ranked list
 
@@ -78,6 +110,7 @@ def cleanTweet(tweet, customSW):
     
     tweet = tweet.lower()
     tweet = tweet.replace(".", "")
+    tweet = tweet.replace(",", "")
 
     tweet = " ".join([word for word in tweet.split(" ") if word not in stopwords and len(word)>1])
     tweet = " ".join([word for word in tweet.split(" ") if word not in customSW and len(word)>1])
@@ -146,9 +179,10 @@ def get_nominees(year):
         filtered = []
         for tweet in df["text"]:
 
+            #remove words common to all award names (helps further separate categories)
             cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'award', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance']) #golden globes needs to be added from config, not hardcoded here !!
 
-            if (bool(set(award.split()) & set(cTweet.split()))): ##figure out better factors
+            if (bool(set(award.split()) & set(cTweet.split()))):
                 cTweet = cleanTweet(cTweet, aw)
                 if ' nominated ' in cTweet:
                     filtered.append([cTweet, "nominated"])
@@ -156,12 +190,10 @@ def get_nominees(year):
                     filtered.append([cTweet, "nominate"])
                 if ' nominee ' in cTweet:
                     filtered.append([cTweet, "nominee"])
-                if ' loses ' in cTweet: #goes to but to is cleaned out
+                if ' loses ' in cTweet: 
                     filtered.append([cTweet, "loses"])
                 if ' lost ' in cTweet:
                     filtered.append([cTweet, "lost"])
-                if ' snub ' in cTweet:
-                    filtered.append([cTweet, 'snub'])
                 if ' snubbed ' in cTweet:
                     filtered.append([cTweet, "snubbed"])
         return filtered
@@ -175,7 +207,7 @@ def get_nominees(year):
             c2 = addLeft(tweet[0], tweet[0].split().index(tweet[1]))
             candidates.append(c)
             candidates.append(c2)
-        nominees[award] = sortCandidates(candidates, 5, award) #needs to return 5-6? dynamically add # based on number of freq/avg?
+        nominees[award] = sortCandidates(candidates, 5, award)
     return nominees
 
 def get_winner(year):
@@ -183,6 +215,7 @@ def get_winner(year):
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
     # Your code here
+
     df = pd.read_csv("datasets/dataset2.csv")
 
     aw = []
@@ -193,12 +226,10 @@ def get_winner(year):
         filtered = []
         
         for tweet in df["text"]:
-            cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'award', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance']) #golden globes needs to be added from config, not hardcoded here !!
-##should remove words common to all awards
+            cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'award', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance', 'movie', 'miniseries']) #golden globes needs to be added from config, not hardcoded here !
+
             if (bool(set(award.split()) & set(cTweet.split()))):
-                
                 cTweet = cleanTweet(cTweet, aw)
-                #print("cleantweet = ", cTweet)
                 if ' wins ' in cTweet:
                     filtered.append([cTweet, "wins"])
                 if ' won ' in cTweet:
@@ -252,7 +283,7 @@ def pre_ceremony():
     
     preprocess()
     df = pd.read_csv("datasets/dataset2.csv")
-    #print(df["text"])
+    #print(df["text"][:50])
     
    
 
@@ -264,18 +295,14 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns.'''
     # Your Code here
-  
-    
+
+   # x = movieDB.get_movie_infoset()
+   # x = movieDB.search_movie("homeland")
+   # print(x)
 
     pre_ceremony()
-    n = get_nominees(2013)
-    print("NOMS =", n)
-
-    a1 = ["i", "i love", "i love this", "i love this movie"]
-    a2 = ["this", "this is", "this is my", "this is my favorite"]
-    a3 = ["i", "i am", "i am another", "i am another list"]
-    aAll = [a1, a2, a3]
-
+    w = get_winner(2013)
+    print("WINS =", w)
 
     return
 
