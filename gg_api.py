@@ -26,6 +26,7 @@ def sortCandidates(candidates, number, award):
 
     c = nltk.FreqDist(arrCombo)
     topList = c.most_common(40)
+    print("top list", topList)
 
     topList2 = [word[0] for word in topList] #removes # frequency from list, just names
     print("test tops", topList2)
@@ -34,12 +35,27 @@ def sortCandidates(candidates, number, award):
     #tags = nltk.pos_tag(topList2) <<POS tagging
     #print("TAGS!", tags) 
 
-    # awardArr = award.split()
+    #awardArr = award.split()
     for candidate in topList2:
         r = candidate.title()
-        if movieDB.name2imdbID(r): 
-            print("guess = ", r)
-            return r
+        if len(r.split()) > 1:
+            if movieDB.name2imdbID(r): 
+                print("guess = ", r)
+                return r
+    # numFound = 0
+    # returnArr = []
+    # for candidate in topList2:
+    #     r = candidate.title()
+    #     if movieDB.name2imdbID(r):
+    #         if len(r.split()) > 1:
+    #     #if movieDB.search_person(r)[0].get(“name”) == r:
+    #             numFound = numFound + 1
+    #             print("guess = ", r)
+    #             if number == 1: return r
+    #             returnArr.append(r)
+    #             if numFound == number:
+    #                 print(' -------------- ')
+    #                 return returnArr
     
     if number == 1: 
         r = c.max().title()
@@ -157,6 +173,7 @@ def cleanTweet(tweet, customSW):
     
     tweet = tweet.lower()
     tweet = tweet.replace(".", "")
+    tweet = tweet.replace("@", "")
 
     tweet = " ".join([word for word in tweet.split(" ") if word not in stopwords and len(word)>1])
     tweet = " ".join([word for word in tweet.split(" ") if word not in customSW and len(word)>1])
@@ -191,24 +208,68 @@ def get_presenters(year):
         filtered = []
         for tweet in df["text"]:
             cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'award', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance']) #golden globes needs to be added from config, not hardcoded here !!
+            exclude_nom_and_win = ['nominated', 'nominates', 'nominee', 'win', 'wins', 'won']
             if (bool(set(award.split()) & set(cTweet.split()))): ##figure out better factors
                 cTweet = cleanTweet(cTweet, aw)
-                if ' presented ' in cTweet:
-                    filtered.append([cTweet, "presented"])
-                if ' present ' in cTweet:
-                    filtered.append([cTweet, "present"])
-                if ' presents ' in cTweet:
-                    filtered.append([cTweet, "presents"])
-                if ' presenter ' in cTweet:
-                    filtered.append([cTweet, "presenter"])
-                if ' presenting ' in cTweet:
-                    filtered.append([cTweet, "presenting"])
-                if ' announce ' in cTweet: 
-                    filtered.append([cTweet, "announce"])
-                if ' announced ' in cTweet:
-                    filtered.append([cTweet, "announced"])
-                if ' announces ' in cTweet:
-                    filtered.append([cTweet, 'announces'])
+                if ('nominated' not in cTweet or
+                    'nominates' not in cTweet or
+                    'nominee' not in cTweet or
+                    'win' not in cTweet or
+                    'wins' not in cTweet or
+                    'won' not in cTweet or
+                    'beat' not in cTweet or
+                    'triumph' not in cTweet or
+                    'upset' not in cTweet or
+                    'victory' not in cTweet or
+                    'victorious' not in cTweet):
+                    if ' present ' in cTweet:
+                        filtered.append([cTweet, "present"])
+                    elif ' presented ' in cTweet:
+                        filtered.append([cTweet, "presented"])
+                    elif ' presents ' in cTweet:
+                        filtered.append([cTweet, "presents"])
+                    elif ' presenter ' in cTweet:
+                        filtered.append([cTweet, "presenter"])
+                    elif ' presenters ' in cTweet:
+                        filtered.append([cTweet, "presenters"])
+                    elif ' presenting ' in cTweet:
+                        filtered.append([cTweet, "presenting"])
+                    elif ' presentadora ' in cTweet:
+                        filtered.append([cTweet, 'presentadora'])
+                    elif ' presento ' in cTweet:
+                        filtered.append([cTweet, 'presento'])
+                    elif ' apresentando ' in cTweet:
+                        filtered.append([cTweet, 'apresentando'])
+                    elif ' presentar ' in cTweet:
+                        filtered.append([cTweet, 'presentar'])
+                    elif ' apresentao ' in cTweet:
+                        filtered.append([cTweet, 'apresentao'])
+                    elif ' announce ' in cTweet: 
+                        filtered.append([cTweet, "announce"])
+                    elif ' announced ' in cTweet:
+                        filtered.append([cTweet, "announced"])
+                    elif ' announces ' in cTweet:
+                        filtered.append([cTweet, 'announces'])
+                    elif ' announcer ' in cTweet:
+                        filtered.append([cTweet, 'announcer'])
+                    elif ' stage ' in cTweet:
+                        filtered.append([cTweet, 'stage'])
+                    elif ' stages ' in cTweet:
+                        filtered.append([cTweet, 'stages'])
+                    elif ' staged ' in cTweet:
+                        filtered.append([cTweet, 'staged'])
+                    elif ' introduce ' in cTweet:
+                        filtered.append([cTweet, 'introduce'])
+                    elif ' introduces ' in cTweet:
+                        filtered.append([cTweet, 'introduces'])
+                    elif ' introduced ' in cTweet:
+                        filtered.append([cTweet, 'introduced'])
+                    elif ' declare ' in cTweet:
+                        filtered.append([cTweet, 'declare'])
+                    elif ' declared ' in cTweet:
+                        filtered.append([cTweet, 'declared'])
+                
+                
         return filtered
     presenters = {}
     for award in OFFICIAL_AWARDS_1315:
@@ -219,7 +280,7 @@ def get_presenters(year):
             c2 = addLeft(tweet[0], tweet[0].split().index(tweet[1]))
             candidates.append(c)
             candidates.append(c2)
-        presenters[award] = sortCandidates(candidates, 5, award) #needs to return 5-6? dynamically add # based on number of freq/avg?
+        presenters[award] = sortCandidates(candidates, 2, award) #needs to return 5-6? dynamically add # based on number of freq/avg?
     return presenters
 
 def pre_ceremony():
