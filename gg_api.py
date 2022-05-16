@@ -66,6 +66,27 @@ def sortCandidates(candidates, number, award):
         print("no IMDB match, guess = ", r)
         return r
 
+def sortFashion(candidates, number, award=""):
+    arrCombo = []
+    for sublist in candidates:
+        arrCombo = arrCombo + sublist
+
+    c = nltk.FreqDist(arrCombo)
+    topList = c.most_common(40)
+    print("top list", topList)
+
+    topList2 = [word[0] for word in topList] #removes # frequency from list, just names
+    print("test tops", topList2)
+    print(' -------------- ')
+    
+    if number == 1: 
+        r = c.max().title()
+        print("guess = ", r)
+        return r
+    else: 
+        r = [c.title() for c in topList2[:number]]
+        print("guess = ", r)
+        return r
 
             
 def addRight(tweet, index):
@@ -283,6 +304,63 @@ def get_presenters(year):
         presenters[award] = sortCandidates(candidates, 2, award) #needs to return 5-6? dynamically add # based on number of freq/avg?
     return presenters
 
+def get_redcarpet(year):
+    '''Presenters is a dictionary with the hard coded award
+    names as keys, and each entry a list of strings. Do NOT change the
+    name of this function or what it returns.'''
+    # Your code here
+    df = pd.read_csv("datasets/dataset2.csv")
+    aw = []
+    for list in OFFICIAL_AWARDS_1315:
+       aw += [word for word in list.split()]
+
+    def filterRedCarpet():
+        filtered = []
+        for i in range(0, len(df['text'])):
+            if 'eredcarpet' in df['topic']:
+                c = addLeft(df['text'][i], len(df['text'][i].split()))
+        for tweet in df["text"]:
+            cTweet = cleanTweet(tweet, ['golden', 'globe', 'award', 'globes', 'tv', 'motion', 'film', 'picture', 'role']) #golden globes needs to be added from config, not hardcoded here !!
+            cTweet = cleanTweet(cTweet, aw)
+            if ('nominated' not in cTweet):
+                if ' red carpet ' in cTweet:
+                    filtered.append([cTweet, "red"]) 
+                if ' best ' in cTweet:
+                    filtered.append([cTweet, "best"]) 
+                if ' dressed ' in cTweet:
+                    filtered.append([cTweet, "dressed"]) 
+                if ' suit ' in cTweet:
+                    filtered.append([cTweet, "suit"]) 
+                if ' look ' in cTweet:
+                    filtered.append([cTweet, "look"]) 
+                if ' outfit ' in cTweet:
+                    filtered.append([cTweet, "outfit"]) 
+                if ' ugly ' in cTweet:
+                    filtered.append([cTweet, "ugly"]) 
+                if ' beautiful ' in cTweet:
+                    filtered.append([cTweet, "beautiful"]) 
+                if ' good ' in cTweet:
+                    filtered.append([cTweet, "good"]) 
+                if ' fashion ' in cTweet:
+                    filtered.append([cTweet, "fashion"]) 
+                if ' style ' in cTweet:
+                    filtered.append([cTweet, "style"]) 
+                if ' hot ' in cTweet:
+                    filtered.append([cTweet, "hot"]) 
+                
+        return filtered
+    
+    candidates = []
+    for tweet in filterRedCarpet():
+        c = addRight(tweet[0], tweet[0].split().index(tweet[1]))
+        c2 = addLeft(tweet[0], tweet[0].split().index(tweet[1]))
+        candidates.append(c)
+        candidates.append(c2)
+    trending = sortFashion(candidates, 10) #needs to return 5-6? dynamically add # based on number of freq/avg?
+    return trending
+
+
+
 def pre_ceremony():
     '''This function loads/fetches/processes any data your program
     will use, and stores that data in your DB or in a json, csv, or
@@ -306,9 +384,12 @@ def main():
 
     pre_ceremony()
 
-    #hardcoding just for now 
-    year = None
-    hosts = get_presenters(year)
+    # year = None
+    # hosts = get_presenters(year)
+
+    # return
+
+    people = get_redcarpet(None)
 
     return
 
