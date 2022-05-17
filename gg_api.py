@@ -11,6 +11,18 @@ from nltk.corpus import stopwords as sw
 import imdb
 from imdb import Cinemagoer
 from hosts import get_text_with_hosts, stem_ref_word, get_candidates, get_all_choices
+from nltk.tokenize import word_tokenize
+#from nltk.corpus import stopwords as sw
+import nltk
+nltk.download('punkt')
+#from langdetect import detect
+#from google_trans_new import google_translator
+
+
+OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
+OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
+
+stopwords = ["to", "and", "I", "that", "this", "for", "the", "an", "at", "in", "a", "golden", "globe", "of", "or"]  #by in a an 
 
 import ssl
 
@@ -24,12 +36,12 @@ else:
 nltk.download('averaged_perceptron_tagger')
 nltk.download('punkt')
 
-
-
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
+
 movieDB = Cinemagoer()
+
 
 aw = []
 stopwords = list(sw.words("english"))[:100]
@@ -52,9 +64,107 @@ def get_awards(year):
     of this function or what it returns.'''
     # Your code here
 
-    awards={}
- 
+    # Helper function in awards
+    def Right(tweet, index):
+        arr = []
+        tweet = tweet.lower()
+        tArr = word_tokenize(tweet) #NLTK func
+        index += 1                  # start adding from index + 1
+        if index == len(tArr) - 1: return
+
+        while tArr[index] in stopwords:
+            index += 1
+            if index == len(tArr):  return 
+
+        s = tArr[index] #range could be oob
+        arr.append(s)
+
+        for i in range(index+1, len(tArr)):
+            if tArr[i] in stopwords:  continue
+            s = s + " " + tArr[i]
+            arr.append(s)
+        return arr
+    def Left(tweet, index):
+        arr = []
+        tArr = word_tokenize(tweet) #NLTK func
+        index -= 1
+        if index == 0: return
+
+        while tArr[index] in stopwords:
+            index -= 1
+            if index == 0:  return
+        s = tArr[index]
+        arr.append(s)
+
+        for i in range(index-1, 0, -1): #check if range will get skipped if oob
+            if tArr[i] in stopwords:  continue
+            s = tArr[i] + " " + s
+            arr.append(s)
+        return arr
+    
+    #main processing in awards
+    df = pd.read_csv("datasets/dataset2.csv")
+    awards = []
+    size = 0
+    if year == 2013 or year == 2015:
+        size = len(OFFICIAL_AWARDS_1315)
+    else:
+        size = len(OFFICIAL_AWARDS_1819)
+    #translator = google_translator()
+
+    candidates = []
+    for tweet in df["text"]:
+        #if detect(tweet) != 'en':
+        #tweet = translator.translate(tweet, lang_tgt='en')
+        temp = word_tokenize(tweet)
+        
+        if "best" in temp:
+            index = 0
+            while temp[index] != "best":
+                index += 1
+            index -= 1  # find the position of "best" and change it to the left 
+            if index > 0 and index < len(temp):
+                c = Right(tweet, index)
+                candidates.append(c)
+        if "win" in temp or "wins" in temp or "won" in temp:
+            index = 0
+            while temp[index] != "win" and temp[index] != "wins" and temp[index] != "won":
+                index += 1
+            if index != (len(temp) - 1):  
+                c = Right(tweet, index)
+                candidates.append(c)
+        if "lost" in temp or "lose" in temp or "loses" in temp:
+            index = 0
+            while temp[index] != "lost" and temp[index] != "lose" and temp[index] != "loses":
+                index += 1
+            if index != (len(temp) - 1):  
+                c = Right(tweet, index)
+                candidates.append(c)
+        if "goes" in temp or "go" in temp:
+            index = 0
+            while temp[index] != "goes" and temp[index] != "go":
+                index += 1
+            if index != (0):  
+                c = Left(tweet, index)
+                candidates.append(c)
+        
+    intoOneLis = []
+    for sub in candidates:
+        if sub == None:     continue
+        intoOneLis = intoOneLis + sub
+    c = nltk.FreqDist(intoOneLis)
+    TopList = c.most_common()
+    
+    counter = 0
+    ind = 0
+    while counter < size:
+        if len(word_tokenize(TopList[ind][0])) > 2:  
+            counter += 1
+            awards.append(TopList[ind][0])
+        ind += 1
+
     return awards
+    
 
 def get_nominees(year):
     '''Nominees is a dictionary with the hard coded award
@@ -226,7 +336,6 @@ def get_winner(year):
     Do NOT change the name of this function or what it returns.'''
     # Your code here
 
-
         #helper funcs ----------------
     def sortCandidates(candidates, number, award):
         arrCombo = []
@@ -344,6 +453,7 @@ def get_winner(year):
     for list in OFFICIAL_AWARDS_1315:
        aw += [word for word in list.split()]
 
+
     def filterWinners(award):
 
         filtered = []
@@ -380,7 +490,9 @@ def get_presenters(year):
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns.'''
     # Your code here
+
     presenters={}
+
     return presenters
 
 def pre_ceremony():
