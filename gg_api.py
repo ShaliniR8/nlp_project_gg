@@ -28,135 +28,10 @@ nltk.download('punkt')
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
-#movieDB = imdb.IMDb()
 movieDB = Cinemagoer()
 
 aw = []
 stopwords = list(sw.words("english"))[:100]
-
-#helper funcs ----------------
-def sortCandidates(candidates, number, award):
-    arrCombo = []
-    for sublist in candidates:
-        arrCombo = arrCombo + sublist
-
-    c = nltk.FreqDist(arrCombo)
-    topList = c.most_common(50)
-
-    topList2 = [word[0] for word in topList if word[1]>1] #removes # frequency from list, just names
-    print("test tops", topList)
-    
-
-    #tags = nltk.pos_tag(topList2) <<POS tagging
-    #print("TAGS!", tags) 
-
-
-    numFound = 0
-    returnArr = []
-    if "actor" in award or "actress" in award or "director" in award:
-        for candidate in topList2:
-            r = candidate.title() 
-            if movieDB.search_person(r) and str(movieDB.search_person(r)[0].get("name")) == r:
-                numFound = numFound + 1
-                print("guess = ", r)
-                if number == 1: return r
-                returnArr.append(r)
-                if numFound == number: 
-                    print(' -------------- ')
-                    return returnArr
-
-    elif "motion picture" in award or "film" in award:
-        for candidate in topList2:
-            r = candidate.title()
-            q = movieDB.search_movie(r)
-            if  q and str(q[0]) == r and q[0]["kind"] == "movie":
-                numFound = numFound + 1
-                print("guess = ", r)
-                if number == 1: return r
-                returnArr.append(r)
-                if numFound == number: 
-                    print(' -------------- ')
-                    return returnArr
-
-    elif "television" in award or "series" in award:
-        for candidate in topList2:
-            r = candidate.title()
-            q = movieDB.search_movie(r)
-            if  q and str(q[0]) == r and q[0]["kind"] == "tv series":
-                numFound = numFound + 1
-                print("guess = ", r)
-                if number == 1: return r
-                returnArr.append(r)
-                if numFound == number: 
-                    print(' -------------- ')
-                    return returnArr
-
-        
-
-    
-    if number == 1: 
-        r = c.max().title()
-        print("no IMDB match, guess = ", r)
-        print(' -------------- ')
-        return r
-    else: 
-        r = [c.title() for c in topList2[:number]]
-        print("no IMDB match, guess = ", r)
-        print(' -------------- ')
-        return r
-
-    # top_3 = c.keys()[:3] - for ranked list
-
-            
-def addRight(tweet, index):
-    arr = []
-    tArr = tweet.split()
-    if index >= len(tArr)-1: return arr
-
-    s = tArr[index+1] 
-    if s not in stopwords:
-        arr.append(s)
-
-    for i in range(index+2, len(tArr)): 
-        s = s + " " + tArr[i]
-        arr.append(s)
-    return arr
-
-
-def addLeft(tweet, index):
-    arr = []
-    tArr = tweet.split() 
-
-    if index == 0: return arr
-    if index == 1:
-        if tArr[0] not in stopwords:
-            arr.append(tArr[0])
-        return arr
-
-    s = tArr[index-1]
-    if s not in stopwords:
-        arr.append(s)
-
-    for i in range(index-2, -1, -1):
-        s = tArr[i] + " " + s
-        arr.append(s)
-    return arr
-
-
-def cleanTweet(tweet, customSW):
-    
-    tweet = tweet.lower()
-    tweet = tweet.replace(".", "")
-    tweet = tweet.replace(",", "")
-
-    tweet = " ".join([word for word in tweet.split(" ") if word not in stopwords and len(word)>1])
-    tweet = " ".join([word for word in tweet.split(" ") if word not in customSW and len(word)>1])
-
-    return tweet
-
-
-# ----------------------------
-
 
 def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
@@ -170,34 +45,7 @@ def get_awards(year):
     of this function or what it returns.'''
     # Your code here
 
-    df = pd.read_csv("datasets/dataset2.csv")
-
-    def filterWinners(award):
-        filtered = []
-        for tweet in df["text"]:
-            cTweet = cleanTweet(tweet, [])
-
-            if award in cTweet: 
-                filtered.append([cTweet, award.split()[0]])
-            if ' wins ' in cTweet:
-                filtered.append([cTweet, "wins"])
-            if ' won ' in cTweet:
-                filtered.append([cTweet, "won"])
-            if ' goes to ' in cTweet:
-                filtered.append([cTweet, "goes"])
-            if ' winner ' in cTweet:
-                filtered.append([cTweet, "winner"])
-        return filtered
-
-    awards = {}
-
-    candidates = []
-    for tweet in filterWinners(" "):
-        c = addRight(tweet[0], tweet[0].split().index(tweet[1]))
-        candidates.append(c)
-    awards = sortCandidates(candidates) #should pull top 15-20 though
-
-
+    awards={}
  
     return awards
 
@@ -206,8 +54,119 @@ def get_nominees(year):
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns.'''
     # Your code here
-    df = pd.read_csv("datasets/dataset2.csv")
 
+        #helper funcs ----------------
+    def sortCandidates(candidates, number, award):
+        arrCombo = []
+        for sublist in candidates:
+            arrCombo = arrCombo + sublist
+
+        c = nltk.FreqDist(arrCombo)
+        topList = c.most_common(50)
+
+        topList2 = [word[0] for word in topList if word[1]>1] #removes # frequency from list, just names
+        print("test tops", topList)
+
+        numFound = 0
+        returnArr = []
+        if "actor" in award or "actress" in award or "director" in award:
+            for candidate in topList2:
+                r = candidate.title() 
+                if movieDB.search_person(r) and str(movieDB.search_person(r)[0].get("name")) == r:
+                    numFound = numFound + 1
+                    print("guess = ", r)
+                    if number == 1: return r
+                    returnArr.append(r)
+                    if numFound == number: 
+                        print(' -------------- ')
+                        return returnArr
+
+        elif "motion picture" in award or "film" in award:
+            for candidate in topList2:
+                r = candidate.title()
+                q = movieDB.search_movie(r)
+                if  q and str(q[0]) == r and q[0]["kind"] == "movie":
+                    numFound = numFound + 1
+                    print("guess = ", r)
+                    if number == 1: return r
+                    returnArr.append(r)
+                    if numFound == number: 
+                        print(' -------------- ')
+                        return returnArr
+
+        elif "television" in award or "series" in award:
+            for candidate in topList2:
+                r = candidate.title()
+                q = movieDB.search_movie(r)
+                if  q and str(q[0]) == r and q[0]["kind"] == "tv series":
+                    numFound = numFound + 1
+                    print("guess = ", r)
+                    if number == 1: return r
+                    returnArr.append(r)
+                    if numFound == number: 
+                        print(' -------------- ')
+                        return returnArr
+        
+        if number == 1: 
+            r = c.max().title()
+            print("no IMDB match, guess = ", r)
+            print(' -------------- ')
+            return r
+        else: 
+            r = [c.title() for c in topList2[:number]]
+            print("no IMDB match, guess = ", r)
+            print(' -------------- ')
+            return r
+
+                
+    def addRight(tweet, index):
+        arr = []
+        tArr = tweet.split()
+        if index >= len(tArr)-1: return arr
+
+        s = tArr[index+1] 
+        if s not in stopwords:
+            arr.append(s)
+
+        for i in range(index+2, len(tArr)): 
+            s = s + " " + tArr[i]
+            arr.append(s)
+        return arr
+
+
+    def addLeft(tweet, index):
+        arr = []
+        tArr = tweet.split() 
+
+        if index == 0: return arr
+        if index == 1:
+            if tArr[0] not in stopwords:
+                arr.append(tArr[0])
+            return arr
+
+        s = tArr[index-1]
+        if s not in stopwords:
+            arr.append(s)
+
+        for i in range(index-2, -1, -1):
+            s = tArr[i] + " " + s
+            arr.append(s)
+        return arr
+
+
+    def cleanTweet(tweet, customSW):
+        
+        tweet = tweet.lower()
+        tweet = tweet.replace(".", "")
+        tweet = tweet.replace(",", "")
+
+        tweet = " ".join([word for word in tweet.split(" ") if word not in stopwords and len(word)>1])
+        tweet = " ".join([word for word in tweet.split(" ") if word not in customSW and len(word)>1])
+
+        return tweet
+    # ----------------------------
+
+    df = pd.read_csv("datasets/dataset2.csv")
     aw = []
     for list in OFFICIAL_AWARDS_1315:
        aw += [word for word in list.split()]
@@ -246,7 +205,7 @@ def get_nominees(year):
     for award in OFFICIAL_AWARDS_1315:
         print("Award Name: ", award)
         candidates = []
-        for tweet in filterNoms(award): #was filterNoms
+        for tweet in filterNoms(award):
             c = addRight(tweet[0], tweet[0].split().index(tweet[1]))
             c2 = addLeft(tweet[0], tweet[0].split().index(tweet[1]))
             candidates.append(c)
@@ -260,6 +219,117 @@ def get_winner(year):
     Do NOT change the name of this function or what it returns.'''
     # Your code here
 
+        #helper funcs ----------------
+    def sortCandidates(candidates, number, award):
+        arrCombo = []
+        for sublist in candidates:
+            arrCombo = arrCombo + sublist
+
+        c = nltk.FreqDist(arrCombo)
+        topList = c.most_common(50)
+
+        topList2 = [word[0] for word in topList if word[1]>1] #removes # frequency from list, just names
+        print("test tops", topList)
+
+        numFound = 0
+        returnArr = []
+        if "actor" in award or "actress" in award or "director" in award:
+            for candidate in topList2:
+                r = candidate.title() 
+                if movieDB.search_person(r) and str(movieDB.search_person(r)[0].get("name")) == r:
+                    numFound = numFound + 1
+                    print("guess = ", r)
+                    if number == 1: return r
+                    returnArr.append(r)
+                    if numFound == number: 
+                        print(' -------------- ')
+                        return returnArr
+
+        elif "motion picture" in award or "film" in award:
+            for candidate in topList2:
+                r = candidate.title()
+                q = movieDB.search_movie(r)
+                if  q and str(q[0]) == r and q[0]["kind"] == "movie":
+                    numFound = numFound + 1
+                    print("guess = ", r)
+                    if number == 1: return r
+                    returnArr.append(r)
+                    if numFound == number: 
+                        print(' -------------- ')
+                        return returnArr
+
+        elif "television" in award or "series" in award:
+            for candidate in topList2:
+                r = candidate.title()
+                q = movieDB.search_movie(r)
+                if  q and str(q[0]) == r and q[0]["kind"] == "tv series":
+                    numFound = numFound + 1
+                    print("guess = ", r)
+                    if number == 1: return r
+                    returnArr.append(r)
+                    if numFound == number: 
+                        print(' -------------- ')
+                        return returnArr
+        
+        if number == 1: 
+            r = c.max().title()
+            print("no IMDB match, guess = ", r)
+            print(' -------------- ')
+            return r
+        else: 
+            r = [c.title() for c in topList2[:number]]
+            print("no IMDB match, guess = ", r)
+            print(' -------------- ')
+            return r
+
+                
+    def addRight(tweet, index):
+        arr = []
+        tArr = tweet.split()
+        if index >= len(tArr)-1: return arr
+
+        s = tArr[index+1] 
+        if s not in stopwords:
+            arr.append(s)
+
+        for i in range(index+2, len(tArr)): 
+            s = s + " " + tArr[i]
+            arr.append(s)
+        return arr
+
+
+    def addLeft(tweet, index):
+        arr = []
+        tArr = tweet.split() 
+
+        if index == 0: return arr
+        if index == 1:
+            if tArr[0] not in stopwords:
+                arr.append(tArr[0])
+            return arr
+
+        s = tArr[index-1]
+        if s not in stopwords:
+            arr.append(s)
+
+        for i in range(index-2, -1, -1):
+            s = tArr[i] + " " + s
+            arr.append(s)
+        return arr
+
+
+    def cleanTweet(tweet, customSW):
+        
+        tweet = tweet.lower()
+        tweet = tweet.replace(".", "")
+        tweet = tweet.replace(",", "")
+
+        tweet = " ".join([word for word in tweet.split(" ") if word not in stopwords and len(word)>1])
+        tweet = " ".join([word for word in tweet.split(" ") if word not in customSW and len(word)>1])
+
+        return tweet
+    # ----------------------------
+
     df = pd.read_csv("datasets/dataset2.csv")
 
     aw = []
@@ -267,6 +337,7 @@ def get_winner(year):
        aw += [word for word in list.split()]
 
     def filterWinners(award):
+
         filtered = []
         
         for tweet in df["text"]:
@@ -301,22 +372,7 @@ def get_presenters(year):
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns.'''
     # Your code here
-    df = pd.read_csv("datasets/dataset2.csv")
-    
-    def filterPresenters(award):
-        filtered = []
-        for tweet in df["text"]:
-            if award in tweet and ('presenting' in tweet or 'present' in tweet or 'announce' in tweet or 'announcing' in tweet):
-                filtered.append(tweet)
-        return filtered
-
-    presenters = {}
-    for award in OFFICIAL_AWARDS_1315:
-        candidates = []
-        for tweet in filterPresenters(award):
-            c = addRight(tweet)
-            candidates.append(c)
-        presenters[award] = sortCandidates(candidates) #only returns 1 rn, will need multiple (set 2-3?)
+    presenters={}
     return presenters
 
 def pre_ceremony():
@@ -327,13 +383,6 @@ def pre_ceremony():
     
     preprocess()
     df = pd.read_csv("datasets/dataset2.csv")
-
-    for i in range(0, len(df["text"])):
-        print("topic", df["topic"][i])
-        print("text", df["text"][i])
-  
-   # for t in df["text"]:
-    #    print("//Tweet:", t)
     
    
 
@@ -345,25 +394,7 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns.'''
     # Your Code here
-
-
-   # x = movieDB.search_movie("")
-   # print(x[0])
-
     pre_ceremony()
-    #w = get_winner(2013)
-    #print("WINS =", w)
-    #x = str(movieDB.search_movie("Argo")[0].get("genres"))
-    #print(x)
-
-    s = "this is a test tweet"
-    sr = addLeft(s, len(s.split()))
-    print(sr)
-
-
-
-    #n = get_nominees(2013)
-    #print("NOMS = ", n)
 
     return
 
