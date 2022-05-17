@@ -10,6 +10,7 @@ import nltk.data
 from nltk.corpus import stopwords as sw
 import imdb
 from imdb import Cinemagoer
+from hosts import get_text_with_hosts, stem_ref_word, get_candidates, get_all_choices
 
 import ssl
 
@@ -37,7 +38,13 @@ def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
-    hosts = ()
+    df = pd.read_csv("datasets/dataset2.csv")
+
+    text_with_hosts = get_text_with_hosts(df)
+    sents_stemmed = stem_ref_word(text_with_hosts)
+    all_bigrams = get_candidates(sents_stemmed)
+    hosts = get_all_choices(all_bigrams)
+
     return hosts
 
 def get_awards(year):
@@ -218,6 +225,7 @@ def get_winner(year):
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
     # Your code here
+
 
         #helper funcs ----------------
     def sortCandidates(candidates, number, award):
