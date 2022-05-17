@@ -5,7 +5,7 @@ import pandas as pd
 import import_ipynb
 import preprocess_csv
 from preprocess_csv import preprocess
-from get_info import host_info, award_info
+from get_info import host_info, award_info, nominee_info
 
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
@@ -57,7 +57,7 @@ def get_hosts(year):
     entities_winners = [ " win ", " won ", " winning ", " wins ", " winner ", " winners " , " goes "]
     entities_presenters = [ " presents ", " presenters ", " presenting ", " presenter ", " present ", " presented " ]
     df = pd.read_csv(f"datasets/dataset{year}.csv")
-
+    
     hosts = host_info(df, entities_hosts)
 
     return hosts
@@ -72,7 +72,10 @@ def get_awards(year):
     entities_winners = [ " win ", " won ", " winning ", " wins ", " winner ", " winners " , " goes "]
     entities_presenters = [ " presents ", " presenters ", " presenting ", " presenter ", " present ", " presented " ]
     df = pd.read_csv(f"datasets/dataset{year}.csv")
-    awards = award_info(df, entities_winners, entities_awards)
+
+    entities_winners += [entity.upper() for entity in entities_winners] + [entity.capitalize() for entity in entities_winners]
+
+    awards = award_info(df, entities_winners, entities_presenters, entities_awards)
     return awards
 
 def get_nominees(year):
@@ -80,22 +83,14 @@ def get_nominees(year):
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns.'''
     # Your code here
-
-
-    def filterNoms(award):
-        filtered = []
-        for tweet in df:
-            if award in tweet and ('nominated' in tweet or 'nominate' in tweet or 'loses' in tweet or 'lost' in tweet):
-                filtered.append(tweet)
-        return filtered
-
-    nominees = {}
-    for award in OFFICIAL_AWARDS_1315:
-        candidates = []
-        for tweet in filterNoms(award):
-            c = addRight(tweet)
-            candidates.append(c)
-        nominees[award] = sortCandidates(candidates) #needs to return 5-6? dynamically add # based on number of freq/avg?
+    entities_hosts = [ " host " , " hosting ", " hosted ", " hosts ", " cohost ", " cohosting ", " cohosts "]
+    entities_nominated = [ " nominated ", " nominee ", " nominees ", " nominate ", " nominates ", " nomination "]
+    entities_awards = [ " best ", " Best "]
+    entities_winners = [ " win ", " won ", " winning ", " wins ", " winner ", " winners " , " goes "]
+    entities_presenters = [ " presents ", " presenters ", " presenting ", " presenter ", " present ", " presented " ]
+    df = pd.read_csv(f"datasets/dataset{year}.csv")
+    
+    nominees = nominee_info(df, entities_nominated)
     return nominees
 
 def get_winner(year):
@@ -147,8 +142,8 @@ def pre_ceremony():
     plain text file. It is the first thing the TA will run when grading.
     Do NOT change the name of this function or what it returns.'''
     
-    preprocess(2013)
-    preprocess(2015)
+    # preprocess(2013)
+    # preprocess(2015)
     
     
     
@@ -163,10 +158,9 @@ def main():
     what it returns.'''
     # Your Code here
 
-    pre_ceremony()
+    # pre_ceremony()
 
     #hardcoding just for now 
-    year = None
     # hosts = get_hosts(year)
 
     return
