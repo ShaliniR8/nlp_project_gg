@@ -36,26 +36,25 @@ def sortCandidates(candidates, number, award):
     #print("TAGS!", tags) 
 
     #awardArr = award.split()
+    # for candidate in topList2:
+    #     r = candidate.title()
+    #     if len(r.split()) > 1:
+    #         if movieDB.name2imdbID(r): 
+    #             print("guess = ", r)
+    #             return r
+    numFound = 0
+    returnArr = []
     for candidate in topList2:
         r = candidate.title()
         if len(r.split()) > 1:
-            if movieDB.name2imdbID(r): 
+            if movieDB.search_person(r) and movieDB.search_person(r)[0].get("name") == r:
+                numFound = numFound + 1
                 print("guess = ", r)
-                return r
-    # numFound = 0
-    # returnArr = []
-    # for candidate in topList2:
-    #     r = candidate.title()
-    #     if movieDB.name2imdbID(r):
-    #         if len(r.split()) > 1:
-    #     #if movieDB.search_person(r)[0].get(“name”) == r:
-    #             numFound = numFound + 1
-    #             print("guess = ", r)
-    #             if number == 1: return r
-    #             returnArr.append(r)
-    #             if numFound == number:
-    #                 print(' -------------- ')
-    #                 return returnArr
+                if number == 1: return r
+                returnArr.append(r)
+                if numFound == number:
+                    print(' -------------- ')
+                    return returnArr
     
     if number == 1: 
         r = c.max().title()
@@ -65,7 +64,6 @@ def sortCandidates(candidates, number, award):
         r = [c.title() for c in topList2[:number]]
         print("no IMDB match, guess = ", r)
         return r
-
 
             
 def addRight(tweet, index):
@@ -207,7 +205,7 @@ def get_presenters(year):
     # return presenters
         filtered = []
         for tweet in df["text"]:
-            cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'award', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance']) #golden globes needs to be added from config, not hardcoded here !!
+            cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'award', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance', 'awards']) #golden globes needs to be added from config, not hardcoded here !!
             exclude_nom_and_win = ['nominated', 'nominates', 'nominee', 'win', 'wins', 'won']
             if (bool(set(award.split()) & set(cTweet.split()))): ##figure out better factors
                 cTweet = cleanTweet(cTweet, aw)
@@ -281,7 +279,102 @@ def get_presenters(year):
             candidates.append(c)
             candidates.append(c2)
         presenters[award] = sortCandidates(candidates, 2, award) #needs to return 5-6? dynamically add # based on number of freq/avg?
+        print(presenters[award])
     return presenters
+
+def get_redcarpet(year):
+    def sortFashion(candidates, number, award=""):
+        arrCombo = []
+        for sublist in candidates:
+            arrCombo = arrCombo + sublist
+
+        c = nltk.FreqDist(arrCombo)
+        topList = c.most_common(200)
+        print("top list", topList)
+
+        topList2 = [word[0] for word in topList] #removes # frequency from list, just names
+        print("test tops", topList2)
+        print(' -------------- ')
+
+        # for candidate in topList2:
+        #     r = candidate.title()
+        #     if len(r.split()) > 1:
+        #         if movieDB.search_person(r) and str(movieDB.search_person(r)[0].get('name')) == r: 
+        #             print("guess = ", r)
+        #             return r
+        numFound = 0
+        returnArr = []
+        for candidate in topList2:
+            r = candidate.title()
+            if len(r.split()) > 1:
+                if movieDB.search_person(r) and str(movieDB.search_person(r)[0].get("name")) == r:
+                    numFound = numFound + 1
+                    print("guess = ", r)
+                    if number == 1: return r
+                    returnArr.append(r)
+                    if numFound == number:
+                        print(' -------------- ')
+                        return returnArr
+    # if: 
+        #     r = [c.title() for c in topList2[:number]]
+        #     print("guess = ", r)
+        #     return r
+
+    df = pd.read_csv("datasets/dataset2.csv")
+    aw = []
+    for list in OFFICIAL_AWARDS_1315:
+       aw += [word for word in list.split()]
+
+    def filterRedCarpet():
+        filtered = []
+        for i in range(0, len(df['text'])):
+            if 'eredcarpet' in df['topic']:
+                c = addLeft(df['text'][i], len(df['text'][i].split()))
+        for tweet in df["text"]:
+            cTweet = cleanTweet(tweet, ['golden', 'globe', 'award', 'globes', 'tv', 'motion', 'film', 'picture', 'role']) #golden globes needs to be added from config, not hardcoded here !!
+            cTweet = cleanTweet(cTweet, aw)
+            if ('nominated' not in cTweet or
+                'nominates' not in cTweet or
+                'nominee' not in cTweet or
+                'win' not in cTweet or
+                'wins' not in cTweet or
+                'won' not in cTweet or
+                'beat' not in cTweet or
+                'triumph' not in cTweet or
+                'upset' not in cTweet or
+                'victory' not in cTweet or
+                'victorious' not in cTweet or
+                'present' not in cTweet):
+                if ' red carpet ' in cTweet:
+                    filtered.append([cTweet, "red"]) 
+                if ' dressed ' in cTweet:
+                    filtered.append([cTweet, "dressed"]) 
+                if ' suit ' in cTweet:
+                    filtered.append([cTweet, "suit"]) 
+                if ' outfit ' in cTweet:
+                    filtered.append([cTweet, "outfit"]) 
+                if ' beautiful ' in cTweet:
+                    filtered.append([cTweet, "beautiful"]) 
+                if ' fashion ' in cTweet:
+                    filtered.append([cTweet, "fashion"]) 
+                if ' style ' in cTweet:
+                    filtered.append([cTweet, "style"]) 
+                if ' hot ' in cTweet:
+                    filtered.append([cTweet, "hot"]) 
+                
+        return filtered
+    
+    
+    candidates = []
+    for tweet in filterRedCarpet():
+        c = addRight(tweet[0], tweet[0].split().index(tweet[1]))
+        c2 = addLeft(tweet[0], tweet[0].split().index(tweet[1]))
+        candidates.append(c)
+        candidates.append(c2)
+    trending = sortFashion(candidates, 10) #needs to return 5-6? dynamically add # based on number of freq/avg?
+    return trending
+
+
 
 def pre_ceremony():
     '''This function loads/fetches/processes any data your program
@@ -306,11 +399,14 @@ def main():
 
     pre_ceremony()
 
-    #hardcoding just for now 
     year = None
     hosts = get_presenters(year)
 
     return
+
+    # people = get_redcarpet(None)
+
+    # return
 
 if __name__ == '__main__':
     main()
