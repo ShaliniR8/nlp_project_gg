@@ -125,16 +125,16 @@ def get_awards(year):
     candidates = []
     for tweet in df["text"]:
         #if detect(tweet) != 'en':
-         #   tweet = translator.translate(tweet, lang_tgt='en')
+        #tweet = translator.translate(tweet, lang_tgt='en')
         temp = word_tokenize(tweet)
         
         if "best" in temp:
             index = 0
             while temp[index] != "best":
                 index += 1
-            index -= 1
+            index -= 1  # find the position of "best" and change it to the left 
             if index > 0 and index < len(temp):
-                c = Right(tweet, index - 1)
+                c = Right(tweet, index)
                 candidates.append(c)
         if "win" in temp or "wins" in temp or "won" in temp:
             index = 0
