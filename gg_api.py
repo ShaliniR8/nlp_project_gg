@@ -887,7 +887,7 @@ def get_redcarpet(year):
             if 'eredcarpet' in df['topic']:
                 c = addLeft(df['text'][i], len(df['text'][i].split()))
         for tweet in df["text"]:
-            cTweet = cleanTweet(tweet, ['golden', 'globe', 'award', 'globes', 'tv', 'motion', 'film', 'picture', 'role']) #golden globes needs to be added from config, not hardcoded here !!
+            cTweet = cleanTweet(tweet, [ 'award', 'tv', 'motion', 'film', 'picture', 'role']) #golden globes needs to be added from config, not hardcoded here !!
             cTweet = cleanTweet(cTweet, aw)
             if ('nominated' not in cTweet or
                 'nominates' not in cTweet or
@@ -977,15 +977,15 @@ def main():
 
 
 
-    #put all results in a json file
+    # put all results in a json file
 
-    # with open("results1.json", "w") as f:
-    #     json.dump(result, f, indent = 4)
+    with open("results1.json", "w") as f:
+        json.dump(result, f, indent = 4)
 
-    # with open("results2.txt", "w") as f:
-    #     f.write("Trending: ")
-    #     for _, people in extra_result["people"].items(): 
-    #         f.write(people + "\n" + "\t")
+    with open("results2.txt", "w") as f:
+        f.write("Trending: ")
+        for people in extra_result["people"]: 
+            f.write(people + "\n" + "\t")
 
 
 
