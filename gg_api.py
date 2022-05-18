@@ -13,14 +13,13 @@ import nltk
 import nltk.data
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords as sw
+from nltk.tokenize import word_tokenize
 
 
 import imdb
 from imdb import Cinemagoer
-from nltk.tokenize import word_tokenize
 #from nltk.corpus import stopwords as sw
 import nltk
-nltk.download('punkt')
 #from langdetect import detect
 #from google_trans_new import google_translator
 
