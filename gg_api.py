@@ -24,7 +24,6 @@ nltk.download('punkt')
 #from langdetect import detect
 #from google_trans_new import google_translator
 
-stopwords = ["to", "and", "I", "that", "this", "for", "the", "an", "at", "in", "a", "golden", "globe", "of", "or"]  #by in a an 
 
 import ssl
 
@@ -41,7 +40,6 @@ nltk.download('punkt')
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
-stopwords = ["to", "and", "I", "that", "this", "for", "the", "an", "at", "in", "a", "golden", "globe", "of", "or"]  #by in a an 
 
 movieDB = Cinemagoer()
 
@@ -100,9 +98,6 @@ def sortCandidates(candidates):
     c = nltk.FreqDist([item for sublist in candidates for item in sublist])
     return c.max(1)
     # top_3 = = c.keys()[:3] - for ranked list
-
-aw = []
-stopwords = list(sw.words("english"))[:100]
 
 def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
@@ -523,7 +518,8 @@ def get_winner(year):
         filtered = []
         
         for tweet in df["text"]:
-            cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'award', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance', 'movie', 'miniseries']) #golden globes needs to be added from config, not hardcoded here !
+            # removed golden and globes as it will be removed dynamically
+            cTweet = cleanTweet(tweet, ['best', 'award', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'performance', 'movie', 'miniseries']) #golden globes needs to be added from config, not hardcoded here !
 
             if (bool(set(award.split()) & set(cTweet.split()))):
                 cTweet = cleanTweet(cTweet, aw)
