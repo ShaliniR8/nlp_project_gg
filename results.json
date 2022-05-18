@@ -1,0 +1,243 @@
+{
+    "hosts": [
+        "Amy Poehler",
+        "Tina Fey"
+    ],
+    "awards": [
+        "best original song",
+        "best supporting actress",
+        "best motion picture",
+        "best supporting actor",
+        "best actress tv",
+        "best director argo",
+        "best tv series",
+        "best actress comedy",
+        "best actor tv",
+        "best tv drama",
+        "best actor motion",
+        "best actor motion picture",
+        "best motion picture drama",
+        "best picture drama",
+        "best original song motion",
+        "best original song motion picture",
+        "best animated feature",
+        "best motion picture comedy",
+        "best motion picture comedy musical",
+        "best actor drama",
+        "best actress drama",
+        "best actress tv series",
+        "best actress motion",
+        "best actress motion picture",
+        "best actor comedy",
+        "best tv series drama"
+    ],
+    "winner": {
+        "cecil b. demille award": "Jodie Foster",
+        "best motion picture - drama": "Argo",
+        "best performance by an actress in a motion picture - drama": "Jennifer Lawrence",
+        "best performance by an actor in a motion picture - drama": "Christoph Waltz",
+        "best motion picture - comedy or musical": "Jackman",
+        "best performance by an actress in a motion picture - comedy or musical": "Les Miserables",
+        "best performance by an actor in a motion picture - comedy or musical": "Christoph Waltz",
+        "best animated feature film": "Brave",
+        "best foreign language film": "Amour",
+        "best performance by an actress in a supporting role in a motion picture": "Christoph Waltz",
+        "best performance by an actor in a supporting role in a motion picture": "Christoph Waltz",
+        "best director - motion picture": "Ben Affleck",
+        "best screenplay - motion picture": "Django Unchained",
+        "best original score - motion picture": "Skyfall",
+        "best original song - motion picture": "Skyfall",
+        "best television series - drama": "Homeland",
+        "best performance by an actress in a television series - drama": "Jennifer Lawrence",
+        "best performance by an actor in a television series - drama": "Christoph Waltz",
+        "best television series - comedy or musical": "Homeland",
+        "best performance by an actress in a television series - comedy or musical": "Les Miserables",
+        "best performance by an actor in a television series - comedy or musical": "Christoph Waltz",
+        "best mini-series or motion picture made for television": "Argo",
+        "best performance by an actress in a mini-series or motion picture made for television": "Jennifer Lawrence",
+        "best performance by an actor in a mini-series or motion picture made for television": "Christoph Waltz",
+        "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television": "Christoph Waltz",
+        "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television": "Christoph Waltz"
+    },
+    "nominees": {
+        "cecil b. demille award": [
+            "Speech",
+            "Meryl",
+            "Night",
+            "Win",
+            "Miniseries"
+        ],
+        "best motion picture - drama": [
+            "Argo",
+            "Rt",
+            "Daniel",
+            "Leading",
+            "Breaking Bad"
+        ],
+        "best performance by an actress in a motion picture - drama": [
+            "Maggie Smith",
+            "Julianne Moore",
+            "Jennifer Lawrence",
+            "Lena Dunham",
+            "Not"
+        ],
+        "best performance by an actor in a motion picture - drama": [
+            "Kevin Costner",
+            "Hugh Jackman",
+            "Christoph",
+            "Christoph Waltz",
+            "Men"
+        ],
+        "best motion picture - comedy or musical": [
+            "Meryl",
+            "Rt",
+            "Lena",
+            "Lena Dunham",
+            "Jennifer Lawrence"
+        ],
+        "best performance by an actress in a motion picture - comedy or musical": [
+            "Maggie Smith",
+            "Julianne Moore",
+            "Jennifer Lawrence",
+            "Lena Dunham",
+            "Anne Hathaway"
+        ],
+        "best performance by an actor in a motion picture - comedy or musical": [
+            "Kevin Costner",
+            "Hugh Jackman",
+            "Christoph",
+            "Christoph Waltz",
+            "Lena Dunham"
+        ],
+        "best animated feature film": [
+            "Brave",
+            "Two",
+            "Two Tonight",
+            "Transylvania",
+            "Hotel Transylvania"
+        ],
+        "best foreign language film": [
+            "Amour"
+        ],
+        "best performance by an actress in a supporting role in a motion picture": [
+            "Maggie Smith",
+            "Julianne Moore",
+            "Jennifer Lawrence",
+            "Christoph",
+            "Christoph Waltz"
+        ],
+        "best performance by an actor in a supporting role in a motion picture": [
+            "Maggie Smith",
+            "Kevin Costner",
+            "Hugh Jackman",
+            "Christoph",
+            "Christoph Waltz"
+        ],
+        "best director - motion picture": [
+            "Ben Affleck",
+            "Even",
+            "Not",
+            "Steven Spielberg",
+            "Got"
+        ],
+        "best screenplay - motion picture": [
+            "Quentin Tarantino",
+            "Quentin",
+            "Tarantino",
+            "Winner",
+            "Tony"
+        ],
+        "best original score - motion picture": [
+            "Skyfall",
+            "Wins",
+            "Adele",
+            "Rt",
+            "Adele Wins"
+        ],
+        "best original song - motion picture": [
+            "Adele",
+            "Skyfall",
+            "Taylor",
+            "Taylor Swift",
+            "Wins"
+        ],
+        "best television series - drama": [
+            "Argo",
+            "Miniseries",
+            "Mini",
+            "Maggie",
+            "Maggie Smith"
+        ],
+        "best performance by an actress in a television series - drama": [
+            "Maggie Smith",
+            "Julianne Moore",
+            "Jennifer Lawrence",
+            "Lena Dunham",
+            "Not"
+        ],
+        "best performance by an actor in a television series - drama": [
+            "Kevin Costner",
+            "Maggie Smith",
+            "Hugh Jackman",
+            "Christoph",
+            "Christoph Waltz"
+        ],
+        "best television series - comedy or musical": [
+            "Miniseries",
+            "Mini",
+            "Maggie",
+            "Maggie Smith",
+            "Meryl"
+        ],
+        "best performance by an actress in a television series - comedy or musical": [
+            "Maggie Smith",
+            "Julianne Moore",
+            "Jennifer Lawrence",
+            "Lena Dunham",
+            "Anne Hathaway"
+        ],
+        "best performance by an actor in a television series - comedy or musical": [
+            "Kevin Costner",
+            "Maggie Smith",
+            "Hugh Jackman",
+            "Christoph",
+            "Christoph Waltz"
+        ],
+        "best mini-series or motion picture made for television": [
+            "Miniseries",
+            "Leading Miniseries",
+            "Kevin",
+            "Kevin Costner",
+            "Kevin Costner Hatfields"
+        ],
+        "best performance by an actress in a mini-series or motion picture made for television": [
+            "Maggie Smith",
+            "Jennifer Lawrence",
+            "Julianne Moore",
+            "Lena Dunham",
+            "Anne Hathaway"
+        ],
+        "best performance by an actor in a mini-series or motion picture made for television": [
+            "Kevin Costner",
+            "Hugh Jackman",
+            "Christoph",
+            "Christoph Waltz",
+            "Daniel Day"
+        ],
+        "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television": [
+            "Maggie Smith",
+            "Jennifer Lawrence",
+            "Julianne Moore",
+            "Christoph",
+            "Christoph Waltz"
+        ],
+        "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television": [
+            "Maggie Smith",
+            "Kevin Costner",
+            "Hugh Jackman",
+            "Christoph",
+            "Christoph Waltz"
+        ]
+    },
+    "presenters": {}
+}

@@ -245,7 +245,7 @@ def get_nominees(year):
         topList = c.most_common(50)
 
         topList2 = [word[0] for word in topList if word[1]>1] #removes # frequency from list, just names
-        print("test tops", topList)
+        # print("test tops", topList)
 
         numFound = 0
         returnArr = []
@@ -254,11 +254,11 @@ def get_nominees(year):
                 r = candidate.title() 
                 if movieDB.search_person(r) and str(movieDB.search_person(r)[0].get("name")) == r:
                     numFound = numFound + 1
-                    print("guess = ", r)
+                    # print("guess = ", r)
                     if number == 1: return r
                     returnArr.append(r)
                     if numFound == number: 
-                        print(' -------------- ')
+                        # print(' -------------- ')
                         return returnArr
 
         elif "motion picture" in award or "film" in award:
@@ -267,11 +267,11 @@ def get_nominees(year):
                 q = movieDB.search_movie(r)
                 if  q and str(q[0]) == r and q[0]["kind"] == "movie":
                     numFound = numFound + 1
-                    print("guess = ", r)
+                    # print("guess = ", r)
                     if number == 1: return r
                     returnArr.append(r)
                     if numFound == number: 
-                        print(' -------------- ')
+                        # print(' -------------- ')
                         return returnArr
 
         elif "television" in award or "series" in award:
@@ -280,22 +280,22 @@ def get_nominees(year):
                 q = movieDB.search_movie(r)
                 if  q and str(q[0]) == r and q[0]["kind"] == "tv series":
                     numFound = numFound + 1
-                    print("guess = ", r)
+                    # print("guess = ", r)
                     if number == 1: return r
                     returnArr.append(r)
                     if numFound == number: 
-                        print(' -------------- ')
+                        # print(' -------------- ')
                         return returnArr
         
         if number == 1: 
             r = c.max().title()
-            print("no IMDB match, guess = ", r)
-            print(' -------------- ')
+            # print("no IMDB match, guess = ", r)
+            # print(' -------------- ')
             return r
         else: 
             r = [c.title() for c in topList2[:number]]
-            print("no IMDB match, guess = ", r)
-            print(' -------------- ')
+            # print("no IMDB match, guess = ", r)
+            # print(' -------------- ')
             return r
 
                 
@@ -384,7 +384,7 @@ def get_nominees(year):
 
     nominees = {}
     for award in OFFICIAL_AWARDS_1315:
-        print("Award Name: ", award)
+        # print("Award Name: ", award)
         candidates = []
         for tweet in filterNoms(award):
             c = addRight(tweet[0], tweet[0].split().index(tweet[1]))
@@ -410,7 +410,7 @@ def get_winner(year):
         topList = c.most_common(50)
 
         topList2 = [word[0] for word in topList if word[1]>1] #removes # frequency from list, just names
-        print("test tops", topList)
+        # print("test tops", topList)
 
         numFound = 0
         returnArr = []
@@ -419,11 +419,11 @@ def get_winner(year):
                 r = candidate.title() 
                 if movieDB.search_person(r) and str(movieDB.search_person(r)[0].get("name")) == r:
                     numFound = numFound + 1
-                    print("guess = ", r)
+                    # print("guess = ", r)
                     if number == 1: return r
                     returnArr.append(r)
                     if numFound == number: 
-                        print(' -------------- ')
+                        # print(' -------------- ')
                         return returnArr
 
         elif "motion picture" in award or "film" in award:
@@ -432,11 +432,11 @@ def get_winner(year):
                 q = movieDB.search_movie(r)
                 if  q and str(q[0]) == r and q[0]["kind"] == "movie":
                     numFound = numFound + 1
-                    print("guess = ", r)
+                    # print("guess = ", r)
                     if number == 1: return r
                     returnArr.append(r)
                     if numFound == number: 
-                        print(' -------------- ')
+                        # print(' -------------- ')
                         return returnArr
 
         elif "television" in award or "series" in award:
@@ -445,22 +445,22 @@ def get_winner(year):
                 q = movieDB.search_movie(r)
                 if  q and str(q[0]) == r and q[0]["kind"] == "tv series":
                     numFound = numFound + 1
-                    print("guess = ", r)
+                    # print("guess = ", r)
                     if number == 1: return r
                     returnArr.append(r)
                     if numFound == number: 
-                        print(' -------------- ')
+                        # print(' -------------- ')
                         return returnArr
         
         if number == 1: 
             r = c.max().title()
-            print("no IMDB match, guess = ", r)
-            print(' -------------- ')
+            # print("no IMDB match, guess = ", r)
+            # print(' -------------- ')
             return r
         else: 
             r = [c.title() for c in topList2[:number]]
-            print("no IMDB match, guess = ", r)
-            print(' -------------- ')
+            # print("no IMDB match, guess = ", r)
+            # print(' -------------- ')
             return r
 
                 
@@ -539,7 +539,7 @@ def get_winner(year):
 
     winners = {}
     for award in OFFICIAL_AWARDS_1315:
-        print("Award Name = ", award)
+        # print("Award Name = ", award)
         candidates = []
         for tweet in filterWinners(award):
             c = addRight(tweet[0], tweet[0].split().index(tweet[1]))
@@ -582,6 +582,31 @@ def main():
     # Your Code here
     config.run()
     pre_ceremony()
+
+    year = 2013
+
+    result = {}
+
+    result["hosts"] = get_hosts(year)
+    print("Found hosts")
+    result["awards"] = get_awards(year)
+    print("Found awards")
+    result["winner"] = get_winner(year)
+    print("Found winners")
+    result["nominees"] = get_nominees(year)
+    print("Found nominees")
+    result["presenters"] = get_presenters(year)
+    print("Found presenters")
+
+
+
+    #put all results in a json file
+    with open("results.json", "w") as f:
+        json.dump(result, f, indent = 4)
+
+   
+
+
 
     return
 
