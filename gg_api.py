@@ -166,7 +166,7 @@ def get_awards(year):
         return arr
     
     #main processing in awards
-    df = pd.read_csv("datasets/dataset2.csv")
+    df = pd.read_csv(f"datasets/dataset{year}.csv")
     awards = []
     size = 0
     if year == 2013 or year == 2015:
@@ -346,7 +346,7 @@ def get_nominees(year):
         return tweet
     # ----------------------------
 
-    df = pd.read_csv("datasets/dataset2.csv")
+    df = pd.read_csv(f"datasets/dataset{year}.csv")
     aw = []
     for list in OFFICIAL_AWARDS_1315:
        aw += [word for word in list.split()]
@@ -356,7 +356,8 @@ def get_nominees(year):
         filtered = []
         
         for tweet in df["text"]:
-            cTweet = cleanTweet(tweet, ['best', 'golden', 'globe', 'globes', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'movie']) #golden globes needs to be added from config, not hardcoded here !
+            #removed golden and globes because they have been preprocessed from words in config file
+            cTweet = cleanTweet(tweet, ['best', 'tv', 'motion', 'picture', 'film', 'picture', 'role', 'movie']) #golden globes needs to be added from config, not hardcoded here !
 
             if (bool(set(award.split()) & set(cTweet.split()))):
                 cTweet = cleanTweet(cTweet, aw)
@@ -510,7 +511,7 @@ def get_winner(year):
         return tweet
     # ----------------------------
 
-    df = pd.read_csv("datasets/dataset2.csv")
+    df = pd.read_csv(f"datasets/dataset{year}.csv")
 
     aw = []
     for list in OFFICIAL_AWARDS_1315:
