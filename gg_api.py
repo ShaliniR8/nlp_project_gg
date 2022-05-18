@@ -938,7 +938,7 @@ def pre_ceremony():
     plain text file. It is the first thing the TA will run when grading.
     Do NOT change the name of this function or what it returns.'''
     
-    # preprocess(2013)
+    preprocess(2013)
     # preprocess(2015)
     
     
