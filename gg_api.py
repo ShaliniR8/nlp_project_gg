@@ -1,26 +1,28 @@
 '''Version 0.35'''
 
+import json
 import pandas as pd
+import config
+from configparser import ConfigParser
 
 import import_ipynb
 import preprocess_csv
 from preprocess_csv import preprocess
-import nltk
+
+import nltk 
 import nltk.data
+from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords as sw
+
+
 import imdb
 from imdb import Cinemagoer
-from hosts import get_text_with_hosts, stem_ref_word, get_candidates, get_all_choices
 from nltk.tokenize import word_tokenize
 #from nltk.corpus import stopwords as sw
 import nltk
 nltk.download('punkt')
 #from langdetect import detect
 #from google_trans_new import google_translator
-
-
-OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
-OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
 stopwords = ["to", "and", "I", "that", "this", "for", "the", "an", "at", "in", "a", "golden", "globe", "of", "or"]  #by in a an 
 
@@ -39,9 +41,65 @@ nltk.download('punkt')
 OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 'best motion picture - musical or comedy', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best performance by an actress in a motion picture - musical or comedy', 'best performance by an actor in a motion picture - musical or comedy', 'best performance by an actress in a supporting role in any motion picture', 'best performance by an actor in a supporting role in any motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best motion picture - animated', 'best motion picture - foreign language', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - musical or comedy', 'best television limited series or motion picture made for television', 'best performance by an actress in a limited series or a motion picture made for television', 'best performance by an actor in a limited series or a motion picture made for television', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best performance by an actress in a television series - musical or comedy', 'best performance by an actor in a television series - musical or comedy', 'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 'best performance by an actor in a supporting role in a series, limited series or motion picture made for television', 'cecil b. demille award']
 
+stopwords = ["to", "and", "I", "that", "this", "for", "the", "an", "at", "in", "a", "golden", "globe", "of", "or"]  #by in a an 
 
 movieDB = Cinemagoer()
 
+
+aw = []
+stopwords = list(sw.words("english"))[:100]
+
+# host helper functions -----------------------------#
+
+def get_text_with_entity(df, entities):
+     text_with_entities = []
+     for text in df["text"]:
+          if any(entity in text.lower() for entity in entities):
+               text_with_entities.append(text)
+     return text_with_entities
+
+def stem_ref(sent, ref, entities):
+     sent = TweetTokenizer().tokenize(sent)
+     sent_stemmed = []
+     for word in sent: 
+          if " " + word.lower() + " " in entities: sent_stemmed.append(ref)
+          # for person name only
+          elif nltk.pos_tag([word])[0][1] in ["NNP", "NN"]:
+               sent_stemmed.append(word)
+     return sent_stemmed
+
+def get_right_bigrams(sent, i):
+     return list(nltk.bigrams(sent[:i]))
+def get_left_bigrams(sent, i):
+     return list(nltk.bigrams(sent[i+1:]))
+
+def get_candidates(sents, ref, entities):
+     all_bigrams = []
+     for sent in sents:
+          sent = stem_ref(sent, ref, entities)
+          i = sent.index(ref)
+          right_bigrams = get_right_bigrams(sent, i)
+          left_bigrams = get_left_bigrams(sent, i)
+          if right_bigrams + left_bigrams != []:
+               all_bigrams = all_bigrams + right_bigrams + left_bigrams
+     return all_bigrams
+
+
+# end -----------------------------------------------#
+
+#helper funcs ----------------
+def get_text_with_entity(df, entities):
+        text_with_entities = []
+        for text in df["text"]:
+            if any(entity in text for entity in entities):
+                text_with_entities.append(text)
+        return text_with_entities
+
+
+def sortCandidates(candidates):
+    c = nltk.FreqDist([item for sublist in candidates for item in sublist])
+    return c.max(1)
+    # top_3 = = c.keys()[:3] - for ranked list
 
 aw = []
 stopwords = list(sw.words("english"))[:100]
@@ -50,14 +108,19 @@ def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
-    df = pd.read_csv("datasets/dataset2.csv")
+    df = pd.read_csv(f"datasets/dataset{year}.csv")
+    hosts = [' host ', ' hosting ', ' hosted ', ' hosts ', ' cohost ', ' cohosting ', ' cohosts ']
+    text_with_hosts = get_text_with_entity(df, hosts)
+    all_bigrams = get_candidates(text_with_hosts, "host", hosts)
+    freq_dic = nltk.FreqDist(all_bigrams)
+    choices = []
+    Max = freq_dic[freq_dic.max()] 
+    for key, value in freq_dic.items():
+        if value/Max > 0.9:
+            key = " ".join(list(key))
+            choices.append(key)
 
-    text_with_hosts = get_text_with_hosts(df)
-    sents_stemmed = stem_ref_word(text_with_hosts)
-    all_bigrams = get_candidates(sents_stemmed)
-    hosts = get_all_choices(all_bigrams)
-
-    return hosts
+    return choices
 
 def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
@@ -501,8 +564,10 @@ def pre_ceremony():
     plain text file. It is the first thing the TA will run when grading.
     Do NOT change the name of this function or what it returns.'''
     
-    preprocess()
-    df = pd.read_csv("datasets/dataset2.csv")
+    # preprocess(2013)
+    # preprocess(2015)
+    
+    
     
    
 
@@ -514,6 +579,7 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns.'''
     # Your Code here
+    config.run()
     pre_ceremony()
 
     return
