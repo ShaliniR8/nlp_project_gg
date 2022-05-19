@@ -961,19 +961,20 @@ def main():
     result = {}
 
     result["hosts"] = get_hosts(year)
-    print("Found hosts")
+    print("Found hosts:", result["hosts"])
     result["awards"] = get_awards(year)
-    print("Found awards")
+    print("Found awards:", result["awards"])
     result["winner"] = get_winner(year)
-    print("Found winners")
+    print("Found winners:", result["winner"])
     result["nominees"] = get_nominees(year)
-    print("Found nominees")
+    print("Found nominees", result["nominees"])
     result["presenters"] = get_presenters(year)
-    print("Found presenters")
+    print("Found presenters", result["presenters"])
 
     extra_result = {}
 
     extra_result["people"] = get_redcarpet(year)
+    print("Found people trending on red carpet", extra_result["people"])
 
 
 
