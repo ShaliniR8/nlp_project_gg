@@ -11,8 +11,6 @@
 
 ## Installation
 
-Dillinger requires [Node.js](https://nodejs.org/) v10+ to run.
-
 Install the requirements file in a new environment.
 
 ```sh
